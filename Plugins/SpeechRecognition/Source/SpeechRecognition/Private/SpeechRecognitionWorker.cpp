@@ -415,6 +415,12 @@ uint32 FSpeechRecognitionWorker::Run() {
 
 		if ((k = ad_read(ad, adbuf, 1024)) < 0)
 			ClientMessage(FString(TEXT("Failed to read audio")));
+
+		for (int i = 0; i < 1020; i++)
+		{
+			adbuf_copy[i] = adbuf[i];
+		}
+
 		ps_process_raw(ps, adbuf, k, 0, 0);
 		in_speech = ps_get_in_speech(ps);
 
@@ -436,6 +442,22 @@ uint32 FSpeechRecognitionWorker::Run() {
 			// re-loop, if there is no hypothesis
 			if (ps_get_hyp(ps, &score) != NULL) {
 
+				string voice_data = contentPath_str + "voice_data/first.raw";
+				FString FileName = FString(voice_data.c_str());
+
+				IPlatformFile& PlatformFile = FPlatformFileManager::Get().GetPlatformFile();
+				IFileHandle* FileHandle = PlatformFile.OpenWrite(*FileName);
+				if (FileHandle)
+				{
+					int16* IntPointer = adbuf_copy;
+					uint8* ByteBuffer = reinterpret_cast<uint8*>(IntPointer);
+
+					// Write the bytes to the file
+					FileHandle->Write(ByteBuffer, 1020 * sizeof(int16));
+
+					// Close the file again
+					delete FileHandle;
+				}
 
 				TArray<FString> phraseSet;
 				map<float, std::string> orderedPhrases;

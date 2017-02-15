@@ -1,9 +1,0 @@
-{
-	"Changelist" : 3195953,
-	"CompatibleChangelist" : 0,
-	"BuildId" : "5dbd97eb-b69d-42c5-ad80-764fe5135971",
-	"Modules" : 
-	{
-		"SpeechRecognition" : "UE4Editor-SpeechRecognition.dll"
-	}
-}

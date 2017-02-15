@@ -1,0 +1,7 @@
+/Plugins/SpeechRecognition/Binaries/
+
+/Plugins/SpeechRecognition/Intermediate/
+
+*.dll
+
+/Binaries

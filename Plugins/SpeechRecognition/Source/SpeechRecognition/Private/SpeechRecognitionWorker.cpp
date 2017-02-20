@@ -8,7 +8,7 @@ FSpeechRecognitionWorker::FSpeechRecognitionWorker() {}
 
 vector<string> FSpeechRecognitionWorker::Split(string s) {
 	std::locale loc;
-    const char* regexStr = (char*)"\\s+";
+	const char* regexStr = (char*)"\\s+";
 	regex r(regexStr);
 	auto words_begin = std::sregex_iterator(s.begin(), s.end(), r);
 	auto words_end = std::sregex_iterator();
@@ -186,6 +186,8 @@ void FSpeechRecognitionWorker::InitConfig() {
 	languageModel = contentPath_str + "model/" + langStr + "/" + langStr + ".lm";
 	dictionaryPath = contentPath_str + "model/" + langStr + "/" + langStr + ".dict";
 
+	
+
 	if (ps != NULL) {
 		cmd_ln_free_r(config);
 	}
@@ -222,7 +224,8 @@ void FSpeechRecognitionWorker::InitConfig() {
 			cmd_ln_set_int_r(config, param.name, atoi(param.value));
 		}
 	}
-
+	voice_path = contentPath_str+ "../Plugins/sphinx-ue4/voice_data";
+	cmd_ln_set_str_r(config, "-rawlogdir", voice_path.c_str()); // giving the path for storing the raw files having utterance
 	// reset params
 	sphinxParams.Empty();
 
@@ -283,6 +286,8 @@ bool FSpeechRecognitionWorker::SetConfigParam(FString param, ESpeechRecognitionP
 
 void FSpeechRecognitionWorker::Stop() {
 	StopTaskCounter.Increment();
+	string voice_bat = voice_path + "/hell.bat";
+	system(voice_bat.c_str());
 }
 
 bool FSpeechRecognitionWorker::StartThread(ASpeechRecognitionActor* manager) {
@@ -416,11 +421,6 @@ uint32 FSpeechRecognitionWorker::Run() {
 		if ((k = ad_read(ad, adbuf, 1024)) < 0)
 			ClientMessage(FString(TEXT("Failed to read audio")));
 
-		for (int i = 0; i < 1020; i++)
-		{
-			adbuf_copy[i] = adbuf[i];
-		}
-
 		ps_process_raw(ps, adbuf, k, 0, 0);
 		in_speech = ps_get_in_speech(ps);
 
@@ -441,23 +441,6 @@ uint32 FSpeechRecognitionWorker::Run() {
 
 			// re-loop, if there is no hypothesis
 			if (ps_get_hyp(ps, &score) != NULL) {
-
-				string voice_data = contentPath_str + "voice_data/first.raw";
-				FString FileName = FString(voice_data.c_str());
-
-				IPlatformFile& PlatformFile = FPlatformFileManager::Get().GetPlatformFile();
-				IFileHandle* FileHandle = PlatformFile.OpenWrite(*FileName);
-				if (FileHandle)
-				{
-					int16* IntPointer = adbuf_copy;
-					uint8* ByteBuffer = reinterpret_cast<uint8*>(IntPointer);
-
-					// Write the bytes to the file
-					FileHandle->Write(ByteBuffer, 1020 * sizeof(int16));
-
-					// Close the file again
-					delete FileHandle;
-				}
 
 				TArray<FString> phraseSet;
 				map<float, std::string> orderedPhrases;

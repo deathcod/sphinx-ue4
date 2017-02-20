@@ -17,6 +17,7 @@
 #include <vector>
 #include <utility>
 #include <coreMisc.h>
+
 //General Log
 DECLARE_LOG_CATEGORY_EXTERN(SpeechRecognitionPlugin, Log, All);
 
@@ -52,7 +53,7 @@ private:
 	cmd_ln_t *config = NULL;
 	ad_rec_t *ad;
 	int16 adbuf[1024];
-	int16 adbuf_copy[1024];
+	string voice_path;
 	uint8 utt_started, in_speech;
 	int32 k;
 	bool initRequired = false;
